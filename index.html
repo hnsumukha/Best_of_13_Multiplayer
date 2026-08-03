@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Best of 13 Multi" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>Best of 13 — Multiplayer</title>
+
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #667085;
+      --border: #d0d5dd;
+      --accent: #2563eb;
+      --accent-soft: #e8f0ff;
+      --summary-bg: #f8fafc;
+      --positive: #15803d;
+      --danger: #b42318;
+      --shadow: 0 8px 28px rgba(15, 23, 42, .10);
+      --sticky-top: 20px;
+      --sticky-stack-height: 210px;
+      --summary-columns: 3;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding:
+        max(14px, env(safe-area-inset-top))
+        14px
+        max(24px, env(safe-area-inset-bottom));
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      max-width: 1120px;
+      margin: auto;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ---------- Setup screen ---------- */
+
+    .setup-screen {
+      display: grid;
+      gap: 14px;
+    }
+
+    .player-count-card {
+      width: min(280px, 100%);
+      justify-self: center;
+      text-align: center;
+    }
+
+    .setup-label,
+    .eyebrow {
+      display: block;
+      font-size: 12px;
+      font-weight: 850;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+    }
+
+    select,
+    input[type="text"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 12px;
+      font-size: 18px;
+      background: var(--card);
+      color: var(--text);
+    }
+
+    select:focus,
+    input:focus {
+      outline: 3px solid var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .names-card {
+      width: 100%;
+    }
+
+    .rank-name-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--name-columns, 1), minmax(130px, 1fr));
+      gap: 12px;
+    }
+
+    .field-counter {
+      margin-top: 4px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .generate-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: 850;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: white;
+      min-width: 220px;
+    }
+
+    button.danger {
+      background: #fee4e2;
+      color: var(--danger);
+      border: 1px solid #fda29b;
+    }
+
+    /* ---------- Scorecard ---------- */
+
+    .scorecard-card {
+      padding-top: 0;
+    }
+
+    .sticky-summary {
+      position: sticky;
+      top: var(--sticky-top);
+      z-index: 30;
+      background: var(--card);
+      padding: 12px 0 8px;
+    }
+
+    .panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    .summary-main {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--summary-columns), minmax(86px, 1fr));
+      gap: 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      background: var(--summary-bg);
+      min-height: 82px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .player-name,
+    .games-label {
+      display: block;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 5px;
+    }
+
+    .games-label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-size: 11px;
+    }
+
+    .stat-value {
+      text-align: center;
+      font-size: clamp(25px, 4vw, 38px);
+      font-weight: 950;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .rankings {
+      margin-top: 8px;
+      display: grid;
+      gap: 3px;
+      font-size: 18px;
+      font-weight: 750;
+      line-height: 1.25;
+    }
+
+    .ranking-line {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .current {
+      flex: 0 0 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .current .stat {
+      min-height: 68px;
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .current-value {
+      color: var(--accent);
+      text-align: center;
+      font-size: 28px;
+      font-weight: 950;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+    }
+
+    #currentJokerText {
+      display: none;
+    }
+
+    .joker-cards {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 1px;
+      flex-wrap: nowrap;
+    }
+
+    .playing-card {
+      width: 54px;
+      height: 76px;
+      background: white;
+      border: 2px solid #111827;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 7px rgba(0,0,0,.18);
+      font-weight: 900;
+    }
+
+    .playing-card .rank {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .playing-card .suit {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .playing-card.red {
+      color: #dc2626;
+    }
+
+    .playing-card.black {
+      color: #111827;
+    }
+
+    .table-wrap {
+      overflow: visible;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    col.game-column {
+      width: 62px;
+    }
+
+    th,
+    td {
+      padding: 9px 6px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    th {
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .035em;
+      position: sticky;
+      top: calc(var(--sticky-stack-height) + var(--sticky-top));
+      z-index: 20;
+      background: var(--card);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tr.current-row {
+      background: var(--accent-soft);
+    }
+
+    tr.complete td:first-child::after {
+      content: " ✓";
+      color: var(--positive);
+    }
+
+    td:first-child {
+      font-weight: 950;
+    }
+
+    .score-input {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 4px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 900;
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .bottom-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    .note {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .current {
+        flex-basis: 255px;
+      }
+
+      .playing-card {
+        width: 46px;
+        height: 66px;
+      }
+
+      .playing-card .rank {
+        font-size: 19px;
+      }
+
+      .playing-card .suit {
+        font-size: 23px;
+      }
+
+      .rankings {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      :root {
+        --sticky-top: 8px;
+      }
+
+      .panel {
+        flex-direction: column;
+      }
+
+      .current {
+        width: 100%;
+        flex-basis: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .rank-name-grid {
+        grid-template-columns: 1fr;
+      }
+
+      th {
+        font-size: 12px;
+        padding-inline: 3px;
+      }
+
+      .score-input {
+        font-size: 16px;
+        padding-inline: 2px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <div id="setupScreen" class="setup-screen">
+      <section class="card player-count-card">
+        <label class="setup-label" for="playerCount">Number of players</label>
+        <select id="playerCount">
+          <option value="" selected disabled>Select</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </section>
+
+      <section id="namesCard" class="card names-card hidden">
+        <div id="rankNameGrid" class="rank-name-grid"></div>
+        <div class="generate-row">
+          <button id="generateScoreCard" class="primary" type="button">Generate Score Card</button>
+        </div>
+      </section>
+    </div>
+
+    <section id="scoreCard" class="card scorecard-card hidden">
+      <div id="stickySummary" class="sticky-summary">
+        <div class="panel">
+          <div class="summary-main">
+            <div id="summaryGrid" class="summary-grid"></div>
+            <div id="rankings" class="rankings"></div>
+          </div>
+
+          <div class="current">
+            <div class="stat">
+              <div class="eyebrow">Current dealer</div>
+              <div id="currentDealer" class="current-value"></div>
+            </div>
+
+            <div class="stat">
+              <div class="eyebrow">Current joker</div>
+              <div id="currentJokerText" class="current-value">Ace</div>
+              <div id="jokerCards" class="joker-cards"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <colgroup id="scoreColGroup"></colgroup>
+          <thead>
+            <tr id="scoreHeaderRow"></tr>
+          </thead>
+          <tbody id="scoreRows"></tbody>
+        </table>
+      </div>
+
+      <div class="bottom-actions">
+        <button id="resetAll" class="danger" type="button">Reset everything</button>
+      </div>
+
+      <div class="note">
+        A game is complete only when every player's score in that row is entered.
+        Use a dash (-) for zero. The dealer and joker update automatically.
+        Scores and player names are saved on this device.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const GAME_COUNT = 13;
+    const JOKERS = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"];
+    const CARD_RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+    const STORAGE_KEY = "bestOf13Multiplayer_v1";
+
+    const $ = id => document.getElementById(id);
+
+    const setupScreen = $("setupScreen");
+    const namesCard = $("namesCard");
+    const playerCountSelect = $("playerCount");
+    const rankNameGrid = $("rankNameGrid");
+    const generateButton = $("generateScoreCard");
+    const scoreCard = $("scoreCard");
+    const summaryGrid = $("summaryGrid");
+    const rankings = $("rankings");
+    const scoreHeaderRow = $("scoreHeaderRow");
+    const scoreColGroup = $("scoreColGroup");
+    const scoreRows = $("scoreRows");
+
+    function defaultState() {
+      return {
+        generated: false,
+        playerCount: 0,
+        players: [],
+        scores: []
+      };
+    }
+
+    function emptyScores(playerCount) {
+      return Array.from(
+        { length: GAME_COUNT },
+        () => Array.from({ length: playerCount }, () => "")
+      );
+    }
+
+    function loadState() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+        if (!parsed || !parsed.generated) {
+          return defaultState();
+        }
+
+        const playerCount = Number(parsed.playerCount);
+        const players = Array.isArray(parsed.players)
+          ? parsed.players.slice(0, playerCount).map(value => String(value).slice(0, 10))
+          : [];
+
+        if (playerCount < 1 || playerCount > 5 || players.length !== playerCount) {
+          return defaultState();
+        }
+
+        const scores = emptyScores(playerCount);
+
+        for (let game = 0; game < GAME_COUNT; game++) {
+          for (let player = 0; player < playerCount; player++) {
+            scores[game][player] = String(parsed.scores?.[game]?.[player] ?? "");
+          }
+        }
+
+        return {
+          generated: true,
+          playerCount,
+          players,
+          scores
+        };
+      } catch {
+        return defaultState();
+      }
+    }
+
+    let state = loadState();
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function entered(value) {
+      const trimmed = String(value).trim();
+
+      return trimmed === "-" ||
+        (trimmed !== "" && Number.isFinite(Number(trimmed)));
+    }
+
+    function scoreValue(value) {
+      return String(value).trim() === "-" ? 0 : Number(value);
+    }
+
+    function gameComplete(gameScores) {
+      return gameScores.length === state.playerCount && gameScores.every(entered);
+    }
+
+    function firstIncompleteGame() {
+      return state.scores.findIndex(gameComplete);
+    }
+
+    function actualFirstIncompleteGame() {
+      return state.scores.findIndex(gameScores => !gameComplete(gameScores));
+    }
+
+    function dealerFor(gameIndex) {
+      if (!state.playerCount) return "";
+
+      // Dealer order runs downward through the card-draw ranks:
+      // Rank i, Rank i-1, ... Rank 2, Rank 1, then repeats.
+      const dealerIndex =
+        (state.playerCount - 1 - (gameIndex % state.playerCount) + state.playerCount)
+        % state.playerCount;
+
+      return state.players[dealerIndex];
+    }
+
+    function totalFor(playerIndex) {
+      return state.scores.reduce((total, gameScores) => {
+        return gameComplete(gameScores)
+          ? total + scoreValue(gameScores[playerIndex])
+          : total;
+      }, 0);
+    }
+
+    function totals() {
+      return state.players.map((_, playerIndex) => totalFor(playerIndex));
+    }
+
+    function rankingOrder(currentTotals) {
+      return state.players
+        .map((player, index) => ({ player, index, total: currentTotals[index] }))
+        .sort((a, b) => a.total - b.total || a.index - b.index);
+    }
+
+    function renderNameFields(playerCount) {
+      rankNameGrid.innerHTML = "";
+      rankNameGrid.style.setProperty("--name-columns", String(playerCount));
+
+      for (let index = 0; index < playerCount; index++) {
+        const wrapper = document.createElement("div");
+        const inputId = `rankName${index}`;
+
+        wrapper.innerHTML = `
+          <label class="setup-label" for="${inputId}">Card Draw Rank ${index + 1}</label>
+          <input
+            id="${inputId}"
+            class="rank-name-input"
+            type="text"
+            maxlength="10"
+            autocomplete="off"
+            aria-label="Card Draw Rank ${index + 1}">
+          <div class="field-counter"><span>0</span>/10</div>
+        `;
+
+        const input = wrapper.querySelector("input");
+        const counter = wrapper.querySelector(".field-counter span");
+
+        input.addEventListener("input", () => {
+          counter.textContent = String(input.value.length);
+        });
+
+        rankNameGrid.appendChild(wrapper);
+      }
+    }
+
+    function buildSummary() {
+      summaryGrid.innerHTML = "";
+      summaryGrid.style.setProperty("--summary-columns", String(state.playerCount + 1));
+
+      state.players.forEach((player, index) => {
+        const stat = document.createElement("div");
+        stat.className = "stat";
+        stat.innerHTML = `
+          <div class="player-name" title="${escapeHtml(player)}">${escapeHtml(player)}</div>
+          <div class="stat-value" data-total-player="${index}">0</div>
+        `;
+        summaryGrid.appendChild(stat);
+      });
+
+      const gamesStat = document.createElement("div");
+      gamesStat.className = "stat";
+      gamesStat.innerHTML = `
+        <div class="games-label">Games finished</div>
+        <div id="gamesFinished" class="stat-value">0 / ${GAME_COUNT}</div>
+      `;
+      summaryGrid.appendChild(gamesStat);
+    }
+
+    function buildTable() {
+      scoreHeaderRow.innerHTML = "";
+      scoreColGroup.innerHTML = "";
+      scoreRows.innerHTML = "";
+
+      const gameCol = document.createElement("col");
+      gameCol.className = "game-column";
+      scoreColGroup.appendChild(gameCol);
+
+      for (let index = 0; index < state.playerCount; index++) {
+        scoreColGroup.appendChild(document.createElement("col"));
+      }
+
+      const gameHeader = document.createElement("th");
+      gameHeader.textContent = "GAME";
+      scoreHeaderRow.appendChild(gameHeader);
+
+      state.players.forEach(player => {
+        const header = document.createElement("th");
+        header.textContent = player;
+        header.title = player;
+        scoreHeaderRow.appendChild(header);
+      });
+
+      for (let gameIndex = 0; gameIndex < GAME_COUNT; gameIndex++) {
+        const row = document.createElement("tr");
+
+        const gameCell = document.createElement("td");
+        gameCell.textContent = String(gameIndex + 1);
+        row.appendChild(gameCell);
+
+        for (let playerIndex = 0; playerIndex < state.playerCount; playerIndex++) {
+          const scoreCell = document.createElement("td");
+          scoreCell.innerHTML = `
+            <input
+              class="score-input"
+              type="text"
+              inputmode="text"
+              data-game="${gameIndex}"
+              data-player="${playerIndex}"
+              aria-label="${escapeHtml(state.players[playerIndex])}, game ${gameIndex + 1}">
+          `;
+          row.appendChild(scoreCell);
+        }
+
+        scoreRows.appendChild(row);
+      }
+
+      document.querySelectorAll(".score-input").forEach(input => {
+        input.addEventListener("input", event => {
+          const gameIndex = Number(event.target.dataset.game);
+          const playerIndex = Number(event.target.dataset.player);
+
+          state.scores[gameIndex][playerIndex] = event.target.value;
+          save();
+          renderScorecard();
+        });
+      });
+    }
+
+    function renderJokerCards(rank) {
+      const suits = [
+        { symbol: "♠", colour: "black" },
+        { symbol: "♥", colour: "red" },
+        { symbol: "♦", colour: "red" },
+        { symbol: "♣", colour: "black" }
+      ];
+
+      $("jokerCards").innerHTML = suits.map(suit => `
+        <div class="playing-card ${suit.colour}">
+          <div class="rank">${rank}</div>
+          <div class="suit">${suit.symbol}</div>
+        </div>
+      `).join("");
+    }
+
+    function updateStickyHeight() {
+      const stickySummary = $("stickySummary");
+      const height = Math.ceil(stickySummary.getBoundingClientRect().height);
+      document.documentElement.style.setProperty("--sticky-stack-height", `${height}px`);
+    }
+
+    function renderRankings(currentTotals) {
+      rankings.innerHTML = "";
+
+      rankingOrder(currentTotals).forEach((entry, rankingIndex) => {
+        const line = document.createElement("div");
+        line.className = "ranking-line";
+        line.textContent = `Rank ${rankingIndex + 1}: ${entry.player}: ${entry.total}`;
+        rankings.appendChild(line);
+      });
+    }
+
+    function renderScorecard() {
+      if (!state.generated) return;
+
+      const currentTotals = totals();
+
+      state.players.forEach((_, index) => {
+        const totalElement = document.querySelector(`[data-total-player="${index}"]`);
+        if (totalElement) totalElement.textContent = String(currentTotals[index]);
+      });
+
+      const finished = state.scores.filter(gameComplete).length;
+      $("gamesFinished").textContent = `${finished} / ${GAME_COUNT}`;
+      renderRankings(currentTotals);
+
+      const currentGame = actualFirstIncompleteGame();
+
+      if (currentGame === -1) {
+        $("currentDealer").textContent = "Match complete";
+        $("currentJokerText").textContent = "All 13 played";
+        $("jokerCards").innerHTML = "";
+      } else {
+        $("currentDealer").textContent = dealerFor(currentGame);
+        $("currentJokerText").textContent = JOKERS[currentGame];
+        renderJokerCards(CARD_RANKS[currentGame]);
+      }
+
+      [...scoreRows.rows].forEach((row, gameIndex) => {
+        const gameScores = state.scores[gameIndex];
+
+        row.querySelectorAll(".score-input").forEach(input => {
+          const playerIndex = Number(input.dataset.player);
+
+          if (document.activeElement !== input) {
+            input.value = gameScores[playerIndex];
+          }
+        });
+
+        row.classList.toggle("complete", gameComplete(gameScores));
+        row.classList.toggle("current-row", gameIndex === currentGame);
+      });
+
+      requestAnimationFrame(updateStickyHeight);
+    }
+
+    function showScorecard() {
+      setupScreen.classList.add("hidden");
+      scoreCard.classList.remove("hidden");
+
+      buildSummary();
+      buildTable();
+      renderScorecard();
+    }
+
+    function showSetup() {
+      scoreCard.classList.add("hidden");
+      setupScreen.classList.remove("hidden");
+      namesCard.classList.add("hidden");
+      playerCountSelect.value = "";
+      rankNameGrid.innerHTML = "";
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    playerCountSelect.addEventListener("change", () => {
+      const playerCount = Number(playerCountSelect.value);
+      renderNameFields(playerCount);
+      namesCard.classList.remove("hidden");
+    });
+
+    generateButton.addEventListener("click", () => {
+      const playerCount = Number(playerCountSelect.value);
+      const inputs = [...document.querySelectorAll(".rank-name-input")];
+      const players = inputs.map(input => input.value.trim());
+
+      if (!playerCount || inputs.length !== playerCount) {
+        alert("Please select the number of players.");
+        return;
+      }
+
+      if (players.some(player => player === "")) {
+        alert("Please enter a name for every card-draw rank.");
+        return;
+      }
+
+      state = {
+        generated: true,
+        playerCount,
+        players,
+        scores: emptyScores(playerCount)
+      };
+
+      save();
+      showScorecard();
+    });
+
+    $("resetAll").addEventListener("click", () => {
+      if (!confirm("Reset player names and all scores?")) return;
+
+      state = defaultState();
+      localStorage.removeItem(STORAGE_KEY);
+      showSetup();
+    });
+
+    if (state.generated) {
+      showScorecard();
+    } else {
+      showSetup();
+    }
+
+    const stickySummary = $("stickySummary");
+
+    if ("ResizeObserver" in window) {
+      const stickyObserver = new ResizeObserver(updateStickyHeight);
+      stickyObserver.observe(stickySummary);
+    }
+
+    window.addEventListener("resize", updateStickyHeight);
+    window.addEventListener("orientationchange", updateStickyHeight);
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js");
+      });
+    }
+  </script>
+</body>
+</html>
