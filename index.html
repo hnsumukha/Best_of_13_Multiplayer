@@ -451,6 +451,13 @@
         padding-inline: 2px;
       }
     }
+      .player-stat {
+        flex: 0.9;
+    }
+
+      .games-stat {
+        flex: 1.4;
+    }
   </style>
 </head>
 
@@ -690,7 +697,7 @@
 
       state.players.forEach((player, index) => {
         const stat = document.createElement("div");
-        stat.className = "stat";
+        stat.className = "stat player-stat";
         stat.innerHTML = `
           <div class="player-name" title="${escapeHtml(player)}">${escapeHtml(player)}</div>
           <div class="stat-value" data-total-player="${index}">0</div>
@@ -699,7 +706,7 @@
       });
 
       const gamesStat = document.createElement("div");
-      gamesStat.className = "stat";
+      gamesStat.className = "stat games-stat";
       gamesStat.innerHTML = `
         <div class="games-label">Games finished</div>
         <div id="gamesFinished" class="stat-value">0 / ${GAME_COUNT}</div>
