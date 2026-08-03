@@ -185,8 +185,9 @@
     }
 
     .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(var(--summary-columns), minmax(86px, 1fr));
+      grid-template-columns:
+      repeat(var(--player-count), minmax(76px, 1fr))
+      minmax(120px, 1.4fr);
       gap: 8px;
     }
 
