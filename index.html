@@ -694,6 +694,9 @@
     function buildSummary() {
       summaryGrid.innerHTML = "";
       summaryGrid.style.setProperty("--summary-columns", String(state.playerCount + 1));
+      summaryGrid.style.gridTemplateColumns = `repeat(${state.playerCount}, minmax(70px, 0.85fr)) minmax(130px, 1.4fr)`;
+
+      
 
       state.players.forEach((player, index) => {
         const stat = document.createElement("div");
