@@ -76,6 +76,18 @@
     .setup-screen {
       display: grid;
       gap: 14px;
+      min-height: calc(100vh - 40px);
+      padding: 24px;
+      border-radius: 14px;
+
+      background:
+      linear-gradient(rgba(15, 23, 42, 0.28), rgba(15, 23, 42, 0.28)),
+      url("./welcome-background.png") center / cover no-repeat;
+    }
+      .player-count-card,
+      .names-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
     }
 
     .player-count-card {
