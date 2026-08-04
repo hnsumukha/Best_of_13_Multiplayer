@@ -646,17 +646,14 @@
       return state.scores.findIndex(gameScores => !gameComplete(gameScores));
     }
 
-    function dealerFor(gameIndex) {
+      function dealerFor(gameIndex) {
       if (!state.playerCount) return "";
 
-      // Dealer order runs downward through the card-draw ranks:
-      // Rank i, Rank i-1, ... Rank 2, Rank 1, then repeats.
       const dealerIndex =
-        (state.playerCount - 1 - (gameIndex % state.playerCount) + state.playerCount)
-        % state.playerCount;
+      (state.playerCount - 1 + gameIndex) % state.playerCount;
 
       return state.players[dealerIndex];
-    }
+}
 
     function totalFor(playerIndex) {
       return state.scores.reduce((total, gameScores) => {
