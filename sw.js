@@ -4,6 +4,7 @@ const STATIC_ASSETS = [
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png"
+  "./welcome-background.png",
 ];
 
 self.addEventListener("install", event => {
