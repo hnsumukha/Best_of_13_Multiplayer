@@ -1,4 +1,4 @@
-const CACHE = "best-of-13-multiplayer-v1.0.12" 
+const CACHE = "best-of-13-multiplayer-v1.0.13" 
 
 const STATIC_ASSETS = [
   "./manifest.webmanifest",
