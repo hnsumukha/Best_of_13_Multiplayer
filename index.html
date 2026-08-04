@@ -73,20 +73,21 @@
 
     /* ---------- Setup screen ---------- */
 
-     .setup-screen {
+   .setup-screen {
   display: grid;
   gap: 14px;
-
   min-height: calc(100vh - 40px);
   padding: 24px;
   border-radius: 14px;
-
-  background-image: url("https://hnsumukha.github.io/Best_of_13_Multiplayer/welcome-background.png") !important;
-  background-position: center !important;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-
   align-content: start;
+
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.25), rgba(15, 23, 42, 0.25)),
+    url("https://hnsumukha.github.io/Best_of_13_Multiplayer/welcome-background.png");
+
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
       .player-count-card,
       .names-card {
